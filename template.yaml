@@ -1,0 +1,60 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: Sample SAM Template for powertools-quickstart
+Globals:
+    Function:
+        Timeout: 3
+Resources:
+    NegosProductsTest:
+        Type: AWS::DynamoDB::Table
+        Properties:
+            TableName: negos-products
+            AttributeDefinitions:
+                - AttributeName: product
+                  AttributeType: S
+            KeySchema:
+                - AttributeName: product
+                  KeyType: HASH
+            BillingMode: PAY_PER_REQUEST
+    CrudServerless:
+        Type: AWS::Serverless::Function
+        Properties:
+            CodeUri: hello_world/
+            Handler: app.lambda_handler
+            Runtime: python3.9
+            Tracing: Active
+            Events:
+                Product:
+                    Type: Api
+                    Properties:
+                        Path: /productsv2/{product}
+                        Method: get
+                Products:
+                    Type: Api
+                    Properties:
+                        Path: /productsv2/all
+                        Method: get
+                InsertProduct:
+                    Type: Api
+                    Properties:
+                        Path: /productsv2
+                        Method: post
+                ModifyProduct:
+                    Type: Api
+                    Properties:
+                        Path: /productsv2
+                        Method: patch
+                UpdateProduct:
+                    Type: Api
+                    Properties:
+                        Path: /productsv2/{product}
+                        Method: put
+                DeleteProduct:
+                    Type: Api
+                    Properties:
+                        Path: /productsv2/{product}
+                        Method: delete
+            Policies:
+                - CloudWatchPutMetricPolicy: {}
+                - DynamoDBCrudPolicy:
+                    TableName: !Ref NegosProductsTest
